@@ -5,7 +5,8 @@ class DialogBox extends StatelessWidget {
   final controller;
   VoidCallback onSave;
   VoidCallback onCancel;
-  DialogBox({super.key,
+  DialogBox({
+    super.key,
     required this.controller,
     required this.onSave,
     required this.onCancel,
@@ -15,9 +16,10 @@ class DialogBox extends StatelessWidget {
   Widget build(BuildContext context) {
     return AlertDialog(
       backgroundColor: Colors.cyanAccent,
-        content: Container(
-          height: 120,
-          child: Column(children: [
+      content: Container(
+        height: 120,
+        child: Column(
+          children: [
             TextField(
               controller: controller,
               decoration: InputDecoration(
@@ -30,13 +32,14 @@ class DialogBox extends StatelessWidget {
               children: [
                 //save
                 Button(text: "Save", onPressed: onSave),
-                const SizedBox(width: 8,),
+                const SizedBox(width: 8),
                 //cancel
                 Button(text: "Cancel", onPressed: onCancel),
               ],
-            )
-          ],),
+            ),
+          ],
         ),
+      ),
     );
   }
 }
