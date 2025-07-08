@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
@@ -12,9 +13,10 @@ void main() async {
   await Hive.initFlutter();
 
   var database = await Hive.openBox('todoDataBase');
-  /*await Firebase . initializeApp (options : DefaultFirebaseOptions . currentPlatform ,).then(
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase . initializeApp (options : DefaultFirebaseOptions . currentPlatform ,).then(
       (FirebaseApp value) => Get.put(AuthenticationRepository()),
-  );*/
+  );
   runApp(const MyApp());
 }
 
@@ -24,9 +26,23 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return GetMaterialApp(
       debugShowCheckedModeBanner: false,
-      home: GetMaterialApp(home: LoginPage(),),
+      home: StreamBuilder(stream: FirebaseAuth.instance.authStateChanges(), builder: (context,snapshot)
+      {
+        if(snapshot.connectionState == ConnectionState.waiting)
+          {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+        if(snapshot.data != null)
+          {
+            return const HomePage();
+          }
+        return LoginPage();
+      }) ,
+      //GetMaterialApp(home: LoginPage(),),
       theme: ThemeData(primarySwatch: Colors.grey),
     );
   }

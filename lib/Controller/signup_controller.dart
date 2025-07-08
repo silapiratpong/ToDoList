@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class SignupController extends GetxController {
   static SignupController get instance => Get.find();
@@ -10,9 +11,12 @@ class SignupController extends GetxController {
   GlobalKey<FormState> signupPageKey = GlobalKey<FormState>();
 
   ///signup
-  Future<void> signup() async {
-    try {
-      if (!signupPageKey.currentState!.validate()) {}
-    } finally {}
+  Future<void> signUp() async {
+    UserCredential userCredential = await FirebaseAuth.instance
+        .createUserWithEmailAndPassword(
+          email: email.text.trim(),
+          password: password.text.trim(),
+        );
+    print(userCredential);
   }
 }

@@ -41,7 +41,7 @@ dependencies:
   get_storage: ^2.1.1
   #firebase0
   firebase_core: ^3.15.1
-
+  firebase_auth: ^5.6.2
 dev_dependencies:
   flutter_test:
     sdk: flutter

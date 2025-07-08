@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:todolist/data/database.dart';
@@ -76,10 +77,17 @@ class _HomePageState extends State<HomePage> {
     ).showSnackBar(theSnackBar(context, "Task Delete"));
   }
 
+  void logOut() {
+    FirebaseAuth.instance.signOut();
+  }
+
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(title: Text('ToDoList'), elevation: 0),
+      appBar: AppBar(title: Text('ToDoList'), elevation: 0,
+        actions: <Widget>[
+          TextButton(onPressed: logOut, child: Text("Logout"))
+        ],),
       floatingActionButton: FloatingActionButton(
         onPressed: createNewTask,
         child: Icon(Icons.add),
