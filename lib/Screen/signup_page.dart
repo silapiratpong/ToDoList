@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:todolist/Controller/Validator.dart';
 import 'package:todolist/Controller/signup_controller.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -15,6 +16,7 @@ class SignupPage extends StatelessWidget {
     final password = TextEditingController();
     final _formkey = GlobalKey<FormState>();
     final controller = Get.put(SignupController());
+    final hidePassword = true.obs;
     return Scaffold(
       appBar: AppBar(),
       body: SingleChildScrollView(
@@ -31,33 +33,45 @@ class SignupPage extends StatelessWidget {
                     TextFormField(
                       controller: email,
                       validator: (value) => ToDoValidator.validateEmail(value),
-                      decoration: const InputDecoration(labelText: "Email"),
+                      decoration: const InputDecoration(labelText: "Email",prefixIcon: Icon(Iconsax.direct_right),),
                     ),
                     const SizedBox(height: 25),
-                    TextFormField(
-                      controller: password,
-                      validator: (value) =>
-                          ToDoValidator.validatePassword(value),
-                      decoration: const InputDecoration(labelText: "Password"),
+                    Obx(
+                        () => TextFormField(
+                          controller: password,
+                          obscureText: hidePassword.value,
+                          validator: (value) =>
+                              ToDoValidator.validatePassword(value),
+                          decoration: InputDecoration(
+                            labelText: "Password",
+                            prefixIcon: const Icon(Iconsax.password_check),
+                            suffixIcon: IconButton(
+                              onPressed: () => hidePassword.value = !hidePassword.value,
+                              icon: Icon(
+                                  hidePassword.value ? Iconsax.eye_slash : Iconsax.eye
+                              ),
+                            ),
+                          ),
+                        ),
                     ),
                     const SizedBox(height: 25),
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
                         onPressed: () async {
-                          try{
+                          try {
                             if (_formkey.currentState!.validate()) {
                               UserCredential userCredential = await FirebaseAuth
                                   .instance
                                   .createUserWithEmailAndPassword(
-                                email: email.text.trim(),
-                                password: password.text.trim(),
-                              );
+                                    email: email.text.trim(),
+                                    password: password.text.trim(),
+                                  );
                               print(userCredential);
                               Get.to(LoginPage());
                               Get.showSnackbar(successSnackBar());
                             }
-                          }catch(e){
+                          } catch (e) {
                             print(e);
                             //Get.showSnackbar(errorSnackBar(e));
                           }

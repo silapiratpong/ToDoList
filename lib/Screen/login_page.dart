@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:todolist/Controller/Validator.dart';
 import 'package:todolist/Screen/home_page.dart';
 import 'package:todolist/Screen/signup_page.dart';
@@ -11,6 +12,7 @@ class LoginPage extends StatelessWidget {
   final email = TextEditingController();
   final password = TextEditingController();
   final _formkey = GlobalKey<FormState>();
+  final hidePassword = true.obs;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -30,72 +32,79 @@ class LoginPage extends StatelessWidget {
               ),
               Form(
                 key: _formkey,
-                child: Column(
-                  children: [
-                    ///Email
-                    TextFormField(
-                      controller: email,
-                      validator: (value) => ToDoValidator.validateEmail(value),
-                      decoration: const InputDecoration(labelText: "Email"),
-                    ),
-                    const SizedBox(height: 10.0),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 20),
+                  child: Column(
+                    children: [
+                      ///Email
+                      TextFormField(
+                        controller: email,
+                        validator: (value) => ToDoValidator.validateEmail(value),
+                        decoration: const InputDecoration(labelText: "Email",prefixIcon: Icon(Iconsax.direct_right)),
+                      ),
+                      const SizedBox(height: 10.0),
 
-                    ///Password
-                    TextFormField(
-                      controller: password,
-                      validator: (value) =>
-                          ToDoValidator.validateEmptyText('Password',value),
-                      decoration: const InputDecoration(labelText: "Password"),
-                    ),
-                    const SizedBox(height: 5.0),
-
-                    ///Forget pw
-                    Row(
-                      children: [
-                        TextButton(
-                          onPressed: () {},
-                          child: const Text("Forget Password?"),
+                      ///Password
+                      Obx(
+                            () => TextFormField(
+                          controller: password,
+                          obscureText: hidePassword.value,
+                          validator: (value) =>
+                              ToDoValidator.validateEmptyText('Password',value),
+                          decoration: InputDecoration(
+                            labelText: "Password",
+                            prefixIcon: const Icon(Iconsax.password_check),
+                            suffixIcon: IconButton(
+                              onPressed: () => hidePassword.value = !hidePassword.value,
+                              icon: Icon(
+                                  hidePassword.value ? Iconsax.eye_slash : Iconsax.eye
+                              ),
+                            ),
+                          ),
                         ),
-                      ],
-                    ),
+                      ),
+                      const SizedBox(height: 5.0),
 
-                    ///Signin
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: () async {
-                          try{
-                            if (_formkey.currentState!.validate()) {
-                              UserCredential userCredential = await FirebaseAuth
-                                  .instance
-                                  .signInWithEmailAndPassword(
-                                email: email.text.trim(),
-                                password: password.text.trim(),
-                              );
-                              print(userCredential);
-                              Get.showSnackbar(successSnackBar());
+
+
+                      ///Signin
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: () async {
+                            try{
+                              if (_formkey.currentState!.validate()) {
+                                UserCredential userCredential = await FirebaseAuth
+                                    .instance
+                                    .signInWithEmailAndPassword(
+                                  email: email.text.trim(),
+                                  password: password.text.trim(),
+                                );
+                                print(userCredential);
+                                Get.showSnackbar(successSnackBar());
+                              }
+                            }catch(e)
+                            {
+                              print(e);
+                              //Get.showSnackbar(errorSnackBar(e));
                             }
-                          }catch(e)
-                          {
-                            print(e);
-                            //Get.showSnackbar(errorSnackBar(e));
-                          }
 
-                        },
-                        child: Text("Sign in"),
+                          },
+                          child: Text("Sign in"),
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 10.0),
+                      const SizedBox(height: 10.0),
 
-                    ///Create Account
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: () => Get.to(SignupPage()),
-                        child: Text("Create Account"),
+                      ///Create Account
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: () => Get.to(SignupPage()),
+                          child: Text("Create Account"),
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ],

@@ -16,18 +16,10 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final _db = FirebaseFirestore.instance;
-  /*final _database = Hive.box(
-    'todoDataBase',
-  ); //ตั้งชื่อให้ตัวเองหรือคนอื่นอ่านรู้เรื่อง
-  ToDoDatabase db = ToDoDatabase();*/
   final _controller = TextEditingController(); //อ่านยาก จัดให้เป็นระเบียบ
   @override
 
   void checkboxChanged(String id,bool value) {
-    /*(() {
-      db.toDoList[index][1] = !db.toDoList[index][1];
-    });
-    db.updateDataBase();*/
     _db.collection("tasks").doc(id).update({"check": !value,});
   }
   
@@ -44,24 +36,23 @@ class _HomePageState extends State<HomePage> {
     }
   }
   void saveNewTask() {
-    /*setState(() {
-      if (_controller.text != "") {
-        db.toDoList.add([_controller.text, false]);
-
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(theSnackBar(context, "Created Task Success"));
-      } else {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(theSnackBar(context, "error"));
-      }
-    });*/
-    uploadListToDb();
+    if (_controller.text != "")
+      {
+        uploadListToDb();
+        _controller.clear();
+      }else {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(theSnackBar(context, "error"));
+    }
+    Navigator.of(context).pop();
+  }
+  void saveEditTask(String id)
+  {
+    _db.collection("tasks").doc(id).update({"title": _controller.text,});
     _controller.clear();
     Navigator.of(context).pop();
   }
-
   //create new task
   void createNewTask() {
     showDialog(
@@ -70,29 +61,33 @@ class _HomePageState extends State<HomePage> {
         return DialogBox(
           controller: _controller,
           onSave: saveNewTask,
-          onCancel: () => Navigator.of(context).pop(),
+          onCancel: () {Navigator.of(context).pop();
+            _controller.clear();}
         );
       },
     );
   }
-
+  void editTask(String id){
+    showDialog(
+      context: context,
+      builder: (context) {
+        return DialogBox(
+          controller: _controller,
+          onSave: () => saveEditTask(id),
+          onCancel: () {Navigator.of(context).pop();
+            _controller.clear();}
+        );
+      },
+    );
+  }
   void deleteTask(String id) {
-    /*setState(() {
-      db.toDoList.removeAt(index);
-    });
-    db.updateDataBase();
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(theSnackBar(context, "Task Delete"));*/
     _db.collection("tasks").doc(id).delete();
   }
-
   void logOut() {
     FirebaseAuth.instance.signOut();
   }
 
   Widget build(BuildContext context) {
-
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(title: Text('ToDoList'), elevation: 0,
@@ -106,6 +101,7 @@ class _HomePageState extends State<HomePage> {
       body: StreamBuilder(
         stream: _db.collection("tasks").where('creator',isEqualTo: FirebaseAuth.instance.currentUser!.uid).snapshots(),
         builder: (context,snapshot) {
+
           if(snapshot.connectionState == ConnectionState.waiting)
             {
               return const Center(child: CircularProgressIndicator(),);
@@ -122,6 +118,7 @@ class _HomePageState extends State<HomePage> {
               taskComplete: snapshot.data!.docs[index].data()['check'],
               onChanged: (value) => checkboxChanged(snapshot.data!.docs[index].id,snapshot.data!.docs[index].data()['check']),
               deleteFunction: (context) => deleteTask(snapshot.data!.docs[index].id),
+              editFunction: (context) => editTask(snapshot.data!.docs[index].id),
             );
           },
         );
