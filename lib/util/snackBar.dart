@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 theSnackBar(context, String message) {
   return SnackBar(
@@ -16,4 +17,16 @@ theSnackBar(context, String message) {
   );
 }
 
+successSnackBar(){
+  return GetSnackBar(
+    message: 'Success',
+    duration: const Duration(seconds: 3),
+  );
+}
 
+errorSnackBar(String? value){
+  return GetSnackBar(
+    message: 'Error',
+    duration: const Duration(seconds: 3),
+  );
+}

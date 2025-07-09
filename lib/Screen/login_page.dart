@@ -4,6 +4,7 @@ import 'package:todolist/Screen/home_page.dart';
 import 'package:todolist/Screen/signup_page.dart';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:todolist/util/snackBar.dart';
 
 class LoginPage extends StatelessWidget {
   LoginPage({super.key});
@@ -43,7 +44,7 @@ class LoginPage extends StatelessWidget {
                     TextFormField(
                       controller: password,
                       validator: (value) =>
-                          ToDoValidator.validatePassword(value),
+                          ToDoValidator.validateEmptyText('Password',value),
                       decoration: const InputDecoration(labelText: "Password"),
                     ),
                     const SizedBox(height: 5.0),
@@ -63,15 +64,23 @@ class LoginPage extends StatelessWidget {
                       width: double.infinity,
                       child: ElevatedButton(
                         onPressed: () async {
-                          if (_formkey.currentState!.validate()) {
-                            UserCredential userCredential = await FirebaseAuth
-                                .instance
-                                .signInWithEmailAndPassword(
-                                  email: email.text.trim(),
-                                  password: password.text.trim(),
-                                );
-                            print(userCredential);
+                          try{
+                            if (_formkey.currentState!.validate()) {
+                              UserCredential userCredential = await FirebaseAuth
+                                  .instance
+                                  .signInWithEmailAndPassword(
+                                email: email.text.trim(),
+                                password: password.text.trim(),
+                              );
+                              print(userCredential);
+                              Get.showSnackbar(successSnackBar());
+                            }
+                          }catch(e)
+                          {
+                            print(e);
+                            //Get.showSnackbar(errorSnackBar(e));
                           }
+
                         },
                         child: Text("Sign in"),
                       ),

@@ -1,18 +1,14 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:hive/hive.dart';
 import 'package:todolist/Screen/home_page.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:todolist/Screen/login_page.dart';
 import 'package:firebase_core/firebase_core.dart' ;
 import 'data/data.repostory.dart';
 import 'firebase_options.dart' ;
 
 void main() async {
-  await Hive.initFlutter();
 
-  var database = await Hive.openBox('todoDataBase');
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase . initializeApp (options : DefaultFirebaseOptions . currentPlatform ,).then(
       (FirebaseApp value) => Get.put(AuthenticationRepository()),
@@ -28,7 +24,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
-      home: StreamBuilder(stream: FirebaseAuth.instance.authStateChanges(), builder: (context,snapshot)
+      home: StreamBuilder(stream: FirebaseAuth.instance.idTokenChanges(), builder: (context,snapshot)
       {
         if(snapshot.connectionState == ConnectionState.waiting)
           {
