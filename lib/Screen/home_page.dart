@@ -37,6 +37,7 @@ class _HomePageState extends State<HomePage> {
             ? Timestamp.fromDate(_dateController.selectedDate.value!)
             : null,
         "isPrivate": _taskController.isPrivate.value,
+        'email': FirebaseAuth.instance.currentUser!.email,
       });
     } catch (e) {
       print(e);
@@ -129,15 +130,26 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.white70,
       appBar: AppBar(
-        title: Text('ToDoList'),
-        elevation: 0,
-        actions: <Widget>[TextButton(onPressed: logOut, child: Text("Logout"))],
+        title: Text(
+          'My Tasks',
+          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
+        ),
+        elevation: 4,
+        actions: <Widget>[
+          IconButton(
+            onPressed: logOut,
+            icon: const Icon(Icons.logout, color: Colors.black),
+            tooltip: "Logout",
+          ),
+        ],
       ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: FloatingActionButton.extended(
         onPressed: createNewTask,
-        child: Icon(Icons.add),
+        backgroundColor: Colors.white,
+        icon: const Icon(Icons.add),
+        label: const Text("Add Task"),
       ),
       body: StreamBuilder(
         stream: _db.collection("tasks").snapshots(),
@@ -149,34 +161,41 @@ class _HomePageState extends State<HomePage> {
             return const Text('no data');
           }
           final docs = snapshot.data!.docs;
-          return ListView.builder(
-            itemCount: docs.length,
-            itemBuilder: (context, index) {
-              final doc = docs[index];
-              if (doc['isPrivate'] == false) {
-                return ToDoTile(
-                  taskName: doc['title'],
-                  taskComplete: doc['check'],
-                  onChanged: (value) => checkboxChanged(doc.id, doc['check']),
-                  deleteFunction: (context) => deleteTask(doc.id),
-                  editFunction: (context) => editTask(doc.id),
-                  dateTime: doc['Date'],
-                );
-              } else if (doc['creator'] ==
-                      FirebaseAuth.instance.currentUser!.uid &&
-                  doc['isPrivate'] == true) {
-                return ToDoTile(
-                  taskName: doc['title'],
-                  taskComplete: doc['check'],
-                  onChanged: (value) => checkboxChanged(doc.id, doc['check']),
-                  deleteFunction: (context) => deleteTask(doc.id),
-                  editFunction: (context) => editTask(doc.id),
-                  dateTime: doc['Date'],
-                );
-              } else {
-                return const SizedBox.shrink(); // return empty widget instead of null
-              }
-            },
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12.0),
+            child: ListView.builder(
+              itemCount: docs.length,
+              itemBuilder: (context, index) {
+                final doc = docs[index];
+                if (doc['isPrivate'] == false) {
+                  return ToDoTile(
+                    userEmail: doc['email'],
+                    taskName: doc['title'],
+                    taskComplete: doc['check'],
+                    onChanged: (value) => checkboxChanged(doc.id, doc['check']),
+                    deleteFunction: (context) => deleteTask(doc.id),
+                    editFunction: (context) => editTask(doc.id),
+                    dateTime: doc['Date'],
+                    isPrivate: doc['isPrivate'],
+                  );
+                } else if (doc['creator'] ==
+                        FirebaseAuth.instance.currentUser!.uid &&
+                    doc['isPrivate'] == true) {
+                  return ToDoTile(
+                    userEmail: doc['email'],
+                    taskName: doc['title'],
+                    taskComplete: doc['check'],
+                    onChanged: (value) => checkboxChanged(doc.id, doc['check']),
+                    deleteFunction: (context) => deleteTask(doc.id),
+                    editFunction: (context) => editTask(doc.id),
+                    dateTime: doc['Date'],
+                    isPrivate: doc['isPrivate'],
+                  );
+                } else {
+                  return const SizedBox.shrink(); // return empty widget instead of null
+                }
+              },
+            ),
           );
         },
       ),

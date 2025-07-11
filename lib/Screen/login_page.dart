@@ -16,23 +16,25 @@ class LoginPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.only(
-            top: 56.0,
-            left: 24.0,
-            bottom: 24.0,
-            right: 24.0,
-          ),
-          child: Column(
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [Text("Login Title")],
-              ),
-              Form(
-                key: _formkey,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 20),
+        padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 80),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 400),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  "Welcome Back!",
+                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  "Login to continue",
+                  style: TextStyle(color: Colors.grey[600], fontSize: 16),
+                ),
+                const SizedBox(height: 32),
+                Form(
+                  key: _formkey,
                   child: Column(
                     children: [
                       ///Email
@@ -40,12 +42,17 @@ class LoginPage extends StatelessWidget {
                         controller: email,
                         validator: (value) =>
                             ToDoValidator.validateEmail(value),
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           labelText: "Email",
-                          prefixIcon: Icon(Iconsax.direct_right),
+                          prefixIcon: const Icon(Iconsax.direct_right),
+                          filled: true,
+                          fillColor: Colors.grey[100],
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
                       ),
-                      const SizedBox(height: 10.0),
+                      const SizedBox(height: 16),
 
                       ///Password
                       Obx(
@@ -59,6 +66,11 @@ class LoginPage extends StatelessWidget {
                           decoration: InputDecoration(
                             labelText: "Password",
                             prefixIcon: const Icon(Iconsax.password_check),
+                            filled: true,
+                            fillColor: Colors.grey[100],
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
                             suffixIcon: IconButton(
                               onPressed: () =>
                                   hidePassword.value = !hidePassword.value,
@@ -71,12 +83,20 @@ class LoginPage extends StatelessWidget {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 5.0),
+                      const SizedBox(height: 24),
 
                       ///Signin
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.cyan,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
                           onPressed: () async {
                             try {
                               if (_formkey.currentState!.validate()) {
@@ -116,24 +136,40 @@ class LoginPage extends StatelessWidget {
                               );
                             }
                           },
-                          child: Text("Sign in"),
+                          child: Text(
+                            "Sign in",
+                            style: TextStyle(fontSize: 16),
+                          ),
                         ),
                       ),
-                      const SizedBox(height: 10.0),
+                      const SizedBox(height: 16),
 
                       ///Create Account
                       SizedBox(
                         width: double.infinity,
-                        child: ElevatedButton(
+                        child: OutlinedButton(
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            side: BorderSide(color: Colors.cyan),
+                          ),
                           onPressed: () => Get.to(SignupPage()),
-                          child: Text("Create Account"),
+                          child: Text(
+                            "Create Account",
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.cyan[700],
+                            ),
+                          ),
                         ),
                       ),
                     ],
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

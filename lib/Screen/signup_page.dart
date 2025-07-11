@@ -18,99 +18,142 @@ class SignupPage extends StatelessWidget {
     final controller = Get.put(SignupController());
     final hidePassword = true.obs;
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        title: const Text('Sign Up'),
+        backgroundColor: Colors.cyan,
+        elevation: 0,
+      ),
       body: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.all(24.0),
-          child: Column(
-            children: [
-              Text("Sign Up"),
-              const SizedBox(height: 25),
-              Form(
-                key: _formkey,
-                child: Column(
-                  children: [
-                    TextFormField(
-                      controller: email,
-                      validator: (value) => ToDoValidator.validateEmail(value),
-                      decoration: const InputDecoration(
-                        labelText: "Email",
-                        prefixIcon: Icon(Iconsax.direct_right),
-                      ),
-                    ),
-                    const SizedBox(height: 25),
-                    Obx(
-                      () => TextFormField(
-                        controller: password,
-                        obscureText: hidePassword.value,
+        padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 40),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 400),
+            child: Column(
+              children: [
+                const Text(
+                  "Create Your Account",
+                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  "Join us by signing up below",
+                  style: TextStyle(color: Colors.grey[600], fontSize: 16),
+                ),
+                const SizedBox(height: 32),
+
+                Form(
+                  key: _formkey,
+                  child: Column(
+                    children: [
+                      // Email field
+                      TextFormField(
+                        controller: email,
                         validator: (value) =>
-                            ToDoValidator.validatePassword(value),
+                            ToDoValidator.validateEmail(value),
                         decoration: InputDecoration(
-                          labelText: "Password",
-                          prefixIcon: const Icon(Iconsax.password_check),
-                          suffixIcon: IconButton(
-                            onPressed: () =>
-                                hidePassword.value = !hidePassword.value,
-                            icon: Icon(
-                              hidePassword.value
-                                  ? Iconsax.eye_slash
-                                  : Iconsax.eye,
+                          labelText: "Email",
+                          prefixIcon: const Icon(Iconsax.direct_right),
+                          filled: true,
+                          fillColor: Colors.grey[100],
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        keyboardType: TextInputType.emailAddress,
+                      ),
+                      const SizedBox(height: 20),
+
+                      // Password field
+                      Obx(
+                        () => TextFormField(
+                          controller: password,
+                          obscureText: hidePassword.value,
+                          validator: (value) =>
+                              ToDoValidator.validatePassword(value),
+                          decoration: InputDecoration(
+                            labelText: "Password",
+                            prefixIcon: const Icon(Iconsax.password_check),
+                            filled: true,
+                            fillColor: Colors.grey[100],
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            suffixIcon: IconButton(
+                              onPressed: () =>
+                                  hidePassword.value = !hidePassword.value,
+                              icon: Icon(
+                                hidePassword.value
+                                    ? Iconsax.eye_slash
+                                    : Iconsax.eye,
+                              ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 25),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: () async {
-                          try {
-                            if (_formkey.currentState!.validate()) {
-                              UserCredential userCredential = await FirebaseAuth
-                                  .instance
-                                  .createUserWithEmailAndPassword(
-                                    email: email.text.trim(),
-                                    password: password.text.trim(),
-                                  );
-                              print(userCredential);
-                              Get.to(LoginPage());
-                              Get.showSnackbar(successSnackBar());
-                            }
-                          } on FirebaseAuthException catch (e) {
-                            String errorMessage;
+                      const SizedBox(height: 32),
 
-                            switch (e.code) {
-                              case 'user-not-found':
-                                errorMessage = 'No user found for that email.';
-                                break;
-                              case 'wrong-password':
-                                errorMessage = 'Wrong password provided.';
-                                break;
-                              case 'invalid-email':
-                                errorMessage = 'Invalid email format.';
-                                break;
-                              case 'user-disabled':
-                                errorMessage =
-                                    'This user account has been disabled.';
-                                break;
-                              default:
-                                errorMessage =
-                                    e.message ?? 'Authentication failed.';
+                      // Create Account Button
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.cyan,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          onPressed: () async {
+                            try {
+                              if (_formkey.currentState!.validate()) {
+                                UserCredential userCredential =
+                                    await FirebaseAuth.instance
+                                        .createUserWithEmailAndPassword(
+                                          email: email.text.trim(),
+                                          password: password.text.trim(),
+                                        );
+                                print(userCredential);
+                                Get.offAll(() => LoginPage());
+                                Get.showSnackbar(successSnackBar());
+                              }
+                            } on FirebaseAuthException catch (e) {
+                              String errorMessage;
+
+                              switch (e.code) {
+                                case 'email-already-in-use':
+                                  errorMessage =
+                                      'This email is already in use.';
+                                  break;
+                                case 'invalid-email':
+                                  errorMessage = 'Invalid email format.';
+                                  break;
+                                case 'operation-not-allowed':
+                                  errorMessage = 'Operation not allowed.';
+                                  break;
+                                case 'weak-password':
+                                  errorMessage = 'The password is too weak.';
+                                  break;
+                                default:
+                                  errorMessage =
+                                      e.message ?? 'Authentication failed.';
+                              }
+                              Get.showSnackbar(
+                                errorSnackBar(message: errorMessage),
+                              );
                             }
-                            Get.showSnackbar(
-                              errorSnackBar(message: errorMessage),
-                            );
-                          }
-                          //await SignupController().signUp();
-                        },
-                        child: Text("Create Account"),
+                          },
+                          child: const Text(
+                            "Create Account",
+                            style: TextStyle(fontSize: 16),
+                          ),
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

@@ -3,15 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:todolist/Screen/home_page.dart';
 import 'package:todolist/Screen/login_page.dart';
-import 'package:firebase_core/firebase_core.dart' ;
-import 'data/data.repostory.dart';
-import 'firebase_options.dart' ;
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
 void main() async {
-
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase . initializeApp (options : DefaultFirebaseOptions . currentPlatform ,).then(
-      (FirebaseApp value) => Get.put(AuthenticationRepository()),
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
   );
   runApp(const MyApp());
 }
@@ -24,21 +22,31 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
-      home: StreamBuilder(stream: FirebaseAuth.instance.idTokenChanges(), builder: (context,snapshot)
-      {
-        if(snapshot.connectionState == ConnectionState.waiting)
-          {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
+      home: StreamBuilder(
+        stream: FirebaseAuth.instance.idTokenChanges(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
           }
-        if(snapshot.data != null)
-          {
+          if (snapshot.data != null) {
             return const HomePage();
           }
-        return LoginPage();
-      }) ,
-      theme: ThemeData(primarySwatch: Colors.grey),
+          return LoginPage();
+        },
+      ),
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.cyan),
+        useMaterial3: true,
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Colors.white,
+          foregroundColor: Colors.white, // sets text & icon color
+          titleTextStyle: TextStyle(
+            color: Colors.white,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
     );
   }
 }

@@ -23,81 +23,108 @@ class DialogBox extends StatelessWidget {
   Widget build(BuildContext context) {
     return AlertDialog(
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.all(Radius.circular(10.0)),
+        borderRadius: BorderRadius.circular(16),
       ),
       backgroundColor: Colors.white,
-      content: Container(
-        height: 400,
-        width: double.infinity,
+      content: SizedBox(
+        width: double.maxFinite,
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
+            // Title
+            const Text(
+              "Create New Task",
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+
+            const SizedBox(height: 16),
+
+            // Text field
             TextField(
               controller: textController,
               decoration: InputDecoration(
-                border: OutlineInputBorder(),
-                hintText: "Add Text",
+                labelText: "Task Title",
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                prefixIcon: const Icon(Icons.task),
               ),
             ),
-            Row(
-              children: [
-                Obx(
-                  () => Checkbox(
-                    value: Get.find<TaskController>().isPrivate.value,
-                    onChanged: (value) =>
-                        Get.find<TaskController>().togglePrivacy(value),
-                  ),
-                ),
-                Text('Private Task'),
-                //Checkbox(value: taskPrivate, onChanged: onChanged),
-              ],
-            ),
 
+            const SizedBox(height: 16),
+
+            // Privacy checkbox
+            Obx(() => Row(
+              children: [
+                Checkbox(
+                  value: Get.find<TaskController>().isPrivate.value,
+                  onChanged: (value) =>
+                      Get.find<TaskController>().togglePrivacy(value),
+                ),
+                const Text(
+                  'Private Task',
+                  style: TextStyle(fontSize: 14),
+                ),
+              ],
+            )),
+
+            const SizedBox(height: 8),
+
+            // Date Picker section
             GestureDetector(
               onTap: () => dateController.pickDate(context),
               child: Container(
-                width: double.infinity,
-                margin: const EdgeInsets.all(20),
-                height: 55,
+                padding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: Colors.cyan.shade100,
+                  borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: Colors.grey.shade300),
-                  borderRadius: BorderRadius.circular(15),
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(left: 10),
-                      child: Obx(() {
-                        final date = dateController.selectedDate.value;
-                        return Text(
-                          date == null
-                              ? 'No date selected.'
-                              : DateFormat('dd MMM yyyy').format(date),
-                        );
-                      }),
-                    ),
-                    Container(
-                      margin: const EdgeInsets.only(right: 10),
-                      width: 80,
-                      height: 35,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        color: Colors.grey.shade100,
+                child: Obx(() {
+                  final date = dateController.selectedDate.value;
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        date == null
+                            ? 'Select a date'
+                            : DateFormat('dd MMM yyyy').format(date),
+                        style: const TextStyle(fontSize: 16),
                       ),
-                      child: Center(child: Text("Time")),
-                    ),
-                  ],
-                ),
+                      const Icon(Icons.calendar_today),
+                    ],
+                  );
+                }),
               ),
             ),
+
+            const SizedBox(height: 20),
+
+            // Action Buttons
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                //save
-                Button(text: "Save", onPressed: onSave),
-                const SizedBox(width: 8),
-                //cancel
-                Button(text: "Cancel", onPressed: onCancel),
+                Expanded(
+                  child: Button(
+                    text: "Cancel",
+                    onPressed: onCancel,
+                    backgroundColor: Colors.grey.shade300,
+                    textColor: Colors.black,
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Button(
+                    text: "Save",
+                    onPressed: onSave,
+                    backgroundColor: Colors.cyan,
+                    textColor: Colors.white,
+                  ),
+                ),
               ],
             ),
           ],
