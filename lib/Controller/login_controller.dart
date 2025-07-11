@@ -7,5 +7,4 @@ class LogInController extends GetxController {
   final email = TextEditingController();
   final password = TextEditingController();
   GlobalKey<FormState> loginPageKey = GlobalKey<FormState>();
-
 }

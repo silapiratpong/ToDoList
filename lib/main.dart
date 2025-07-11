@@ -38,7 +38,6 @@ class MyApp extends StatelessWidget {
           }
         return LoginPage();
       }) ,
-      //GetMaterialApp(home: LoginPage(),),
       theme: ThemeData(primarySwatch: Colors.grey),
     );
   }

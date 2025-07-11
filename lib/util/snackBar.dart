@@ -17,16 +17,16 @@ theSnackBar(context, String message) {
   );
 }
 
-successSnackBar(){
-  return GetSnackBar(
-    message: 'Success',
-    duration: const Duration(seconds: 3),
-  );
+successSnackBar() {
+  return GetSnackBar(message: 'Success', duration: const Duration(seconds: 3));
 }
 
-errorSnackBar(String? value){
+errorSnackBar({required String message}) {
   return GetSnackBar(
-    message: 'Error',
+    title: "Error",
+    message: message,
     duration: const Duration(seconds: 3),
+    backgroundColor: Colors.red,
+    snackPosition: SnackPosition.BOTTOM,
   );
 }

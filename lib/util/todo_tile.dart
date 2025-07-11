@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:todolist/util/button.dart';
 import 'package:intl/intl.dart';
 
 class ToDoTile extends StatelessWidget {
@@ -10,7 +9,7 @@ class ToDoTile extends StatelessWidget {
   Function(bool?)? onChanged;
   Function(BuildContext)? deleteFunction;
   Function(BuildContext)? editFunction;
-  Timestamp  dateTime;
+  Timestamp dateTime;
   ToDoTile({
     super.key,
     required this.taskName,
@@ -51,7 +50,7 @@ class ToDoTile extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Checkbox(value: taskComplete, onChanged: onChanged,),
+                  Checkbox(value: taskComplete, onChanged: onChanged),
                   Text(
                     taskName,
                     style: TextStyle(
@@ -87,7 +86,10 @@ class ToDoTile extends StatelessWidget {
                           children: [
                             Text(
                               formattedDate,
-                              style: TextStyle(fontSize: 14, color: Colors.black),
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.black,
+                              ),
                             ),
                           ],
                         ),

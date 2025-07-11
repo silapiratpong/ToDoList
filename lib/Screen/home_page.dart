@@ -2,14 +2,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
-import 'package:todolist/data/database.dart';
 import 'package:todolist/util/dialog_box.dart';
 import 'package:todolist/util/snackBar.dart';
 import 'package:todolist/util/todo_tile.dart';
 import 'package:uuid/uuid.dart';
-import 'package:async/async.dart' show StreamGroup;
-import 'package:rxdart/rxdart.dart';
 import '../Controller/date_Controller.dart';
 import '../Controller/task_Controller.dart';
 
@@ -26,7 +22,6 @@ class _HomePageState extends State<HomePage> {
     DateController(),
   ); //อ่านยาก จัดให้เป็นระเบียบ
   final TaskController _taskController = Get.put(TaskController());
-  @override
   void checkboxChanged(String id, bool value) {
     _db.collection("tasks").doc(id).update({"check": !value});
   }
@@ -38,8 +33,8 @@ class _HomePageState extends State<HomePage> {
         "title": _controller.text,
         "check": false,
         "creator": FirebaseAuth.instance.currentUser!.uid,
-        "Date":  _dateController.seletedDate.value != null
-            ? Timestamp.fromDate(_dateController.seletedDate.value!)
+        "Date": _dateController.selectedDate.value != null
+            ? Timestamp.fromDate(_dateController.selectedDate.value!)
             : null,
         "isPrivate": _taskController.isPrivate.value,
       });
@@ -61,8 +56,8 @@ class _HomePageState extends State<HomePage> {
   void saveEditTask(String id) {
     _db.collection("tasks").doc(id).update({"title": _controller.text});
     _db.collection("tasks").doc(id).update({
-      "Date":  _dateController.seletedDate.value != null
-          ? Timestamp.fromDate(_dateController.seletedDate.value!)
+      "Date": _dateController.selectedDate.value != null
+          ? Timestamp.fromDate(_dateController.selectedDate.value!)
           : null,
     });
     _db.collection("tasks").doc(id).update({
@@ -78,30 +73,27 @@ class _HomePageState extends State<HomePage> {
       context: context,
       builder: (context) {
         return DialogBox(
-          textcontroller: _controller,
+          textController: _controller,
           onSave: saveNewTask,
           onCancel: () {
             Navigator.of(context).pop();
             _controller.clear();
             _taskController.reset();
-            _dateController.seletedDate.value = null;
-            _taskController.reset(); // Reset privacy
+            _dateController.selectedDate.value = null;
+            _taskController.reset();
           },
-          datecontroller: _dateController,
+          dateController: _dateController,
         );
       },
     );
   }
 
   void editTask(String id) async {
-    // Get the document data from Firestore
     final doc = await _db.collection("tasks").doc(id).get();
     final data = doc.data();
-
     if (data != null) {
-      // Set current title and date
       final rawDate = data['Date'];
-      _dateController.seletedDate.value = rawDate != null
+      _dateController.selectedDate.value = rawDate != null
           ? (rawDate as Timestamp).toDate()
           : null;
       _controller.text = data['title'];
@@ -111,16 +103,16 @@ class _HomePageState extends State<HomePage> {
       context: context,
       builder: (context) {
         return DialogBox(
-          textcontroller: _controller,
+          textController: _controller,
           onSave: () => saveEditTask(id),
           onCancel: () {
             Navigator.of(context).pop();
             _controller.clear();
             _taskController.reset();
-            _dateController.seletedDate.value = null;
-            _taskController.reset(); // Reset privacy
+            _dateController.selectedDate.value = null;
+            _taskController.reset();
           },
-          datecontroller: _dateController,
+          dateController: _dateController,
         );
       },
     );
@@ -134,21 +126,8 @@ class _HomePageState extends State<HomePage> {
     FirebaseAuth.instance.signOut();
   }
 
+  @override
   Widget build(BuildContext context) {
-    final taskStream = StreamGroup.merge([
-        _db
-            .collection("tasks")
-            .where('isPrivate', isEqualTo: false)
-            .snapshots(),
-        _db
-            .collection("tasks")
-            .where(
-          'creator',
-          isEqualTo: FirebaseAuth.instance.currentUser!.uid,
-        )
-            .where('isPrivate', isEqualTo: true)
-            .snapshots(),
-      ]).asBroadcastStream();
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -160,10 +139,9 @@ class _HomePageState extends State<HomePage> {
         onPressed: createNewTask,
         child: Icon(Icons.add),
       ),
-      body:  StreamBuilder(stream: taskStream,
-          builder: (context, AsyncSnapshot<QuerySnapshot> snapshot)
-        //_db.collection("tasks").where('creator',isEqualTo: FirebaseAuth.instance.currentUser!.uid).snapshots(),
-         {
+      body: StreamBuilder(
+        stream: _db.collection("tasks").snapshots(),
+        builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
@@ -175,14 +153,29 @@ class _HomePageState extends State<HomePage> {
             itemCount: docs.length,
             itemBuilder: (context, index) {
               final doc = docs[index];
-              return ToDoTile(
-                taskName: doc['title'],
-                taskComplete: doc['check'],
-                onChanged: (value) => checkboxChanged(doc.id, doc['check']),
-                deleteFunction: (context) => deleteTask(doc.id),
-                editFunction: (context) => editTask(doc.id),
-                dateTime: doc['Date'],
-              );
+              if (doc['isPrivate'] == false) {
+                return ToDoTile(
+                  taskName: doc['title'],
+                  taskComplete: doc['check'],
+                  onChanged: (value) => checkboxChanged(doc.id, doc['check']),
+                  deleteFunction: (context) => deleteTask(doc.id),
+                  editFunction: (context) => editTask(doc.id),
+                  dateTime: doc['Date'],
+                );
+              } else if (doc['creator'] ==
+                      FirebaseAuth.instance.currentUser!.uid &&
+                  doc['isPrivate'] == true) {
+                return ToDoTile(
+                  taskName: doc['title'],
+                  taskComplete: doc['check'],
+                  onChanged: (value) => checkboxChanged(doc.id, doc['check']),
+                  deleteFunction: (context) => deleteTask(doc.id),
+                  editFunction: (context) => editTask(doc.id),
+                  dateTime: doc['Date'],
+                );
+              } else {
+                return const SizedBox.shrink(); // return empty widget instead of null
+              }
             },
           );
         },

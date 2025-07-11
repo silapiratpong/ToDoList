@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:todolist/Controller/Validator.dart';
-import 'package:todolist/Screen/home_page.dart';
 import 'package:todolist/Screen/signup_page.dart';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -39,25 +38,34 @@ class LoginPage extends StatelessWidget {
                       ///Email
                       TextFormField(
                         controller: email,
-                        validator: (value) => ToDoValidator.validateEmail(value),
-                        decoration: const InputDecoration(labelText: "Email",prefixIcon: Icon(Iconsax.direct_right)),
+                        validator: (value) =>
+                            ToDoValidator.validateEmail(value),
+                        decoration: const InputDecoration(
+                          labelText: "Email",
+                          prefixIcon: Icon(Iconsax.direct_right),
+                        ),
                       ),
                       const SizedBox(height: 10.0),
 
                       ///Password
                       Obx(
-                            () => TextFormField(
+                        () => TextFormField(
                           controller: password,
                           obscureText: hidePassword.value,
-                          validator: (value) =>
-                              ToDoValidator.validateEmptyText('Password',value),
+                          validator: (value) => ToDoValidator.validateEmptyText(
+                            'Password',
+                            value,
+                          ),
                           decoration: InputDecoration(
                             labelText: "Password",
                             prefixIcon: const Icon(Iconsax.password_check),
                             suffixIcon: IconButton(
-                              onPressed: () => hidePassword.value = !hidePassword.value,
+                              onPressed: () =>
+                                  hidePassword.value = !hidePassword.value,
                               icon: Icon(
-                                  hidePassword.value ? Iconsax.eye_slash : Iconsax.eye
+                                hidePassword.value
+                                    ? Iconsax.eye_slash
+                                    : Iconsax.eye,
                               ),
                             ),
                           ),
@@ -65,30 +73,48 @@ class LoginPage extends StatelessWidget {
                       ),
                       const SizedBox(height: 5.0),
 
-
-
                       ///Signin
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
                           onPressed: () async {
-                            try{
+                            try {
                               if (_formkey.currentState!.validate()) {
-                                UserCredential userCredential = await FirebaseAuth
-                                    .instance
-                                    .signInWithEmailAndPassword(
-                                  email: email.text.trim(),
-                                  password: password.text.trim(),
-                                );
+                                UserCredential userCredential =
+                                    await FirebaseAuth.instance
+                                        .signInWithEmailAndPassword(
+                                          email: email.text.trim(),
+                                          password: password.text.trim(),
+                                        );
                                 print(userCredential);
                                 Get.showSnackbar(successSnackBar());
                               }
-                            }catch(e)
-                            {
-                              print(e);
-                              //Get.showSnackbar(errorSnackBar(e));
-                            }
+                            } on FirebaseAuthException catch (e) {
+                              String errorMessage;
 
+                              switch (e.code) {
+                                case 'user-not-found':
+                                  errorMessage =
+                                      'No user found for that email.';
+                                  break;
+                                case 'wrong-password':
+                                  errorMessage = 'Wrong password provided.';
+                                  break;
+                                case 'invalid-email':
+                                  errorMessage = 'Invalid email format.';
+                                  break;
+                                case 'user-disabled':
+                                  errorMessage =
+                                      'This user account has been disabled.';
+                                  break;
+                                default:
+                                  errorMessage =
+                                      e.message ?? 'Authentication failed.';
+                              }
+                              Get.showSnackbar(
+                                errorSnackBar(message: errorMessage),
+                              );
+                            }
                           },
                           child: Text("Sign in"),
                         ),

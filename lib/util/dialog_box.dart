@@ -2,23 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:todolist/util/button.dart';
-
 import '../Controller/date_Controller.dart';
 import '../Controller/task_Controller.dart';
 
 class DialogBox extends StatelessWidget {
-  final DateController datecontroller;
+  final DateController dateController;
 
-  final textcontroller;
+  final textController;
   VoidCallback onSave;
   VoidCallback onCancel;
   DialogBox({
     super.key,
-    required this.textcontroller,
+    required this.textController,
     required this.onSave,
     required this.onCancel,
-    required this.datecontroller,
-
+    required this.dateController,
   });
 
   @override
@@ -27,14 +25,14 @@ class DialogBox extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.all(Radius.circular(10.0)),
       ),
-      backgroundColor: Colors.cyanAccent,
+      backgroundColor: Colors.white,
       content: Container(
         height: 400,
         width: double.infinity,
         child: Column(
           children: [
             TextField(
-              controller: textcontroller,
+              controller: textController,
               decoration: InputDecoration(
                 border: OutlineInputBorder(),
                 hintText: "Add Text",
@@ -55,7 +53,7 @@ class DialogBox extends StatelessWidget {
             ),
 
             GestureDetector(
-              onTap: () => datecontroller.pickDate(context),
+              onTap: () => dateController.pickDate(context),
               child: Container(
                 width: double.infinity,
                 margin: const EdgeInsets.all(20),
@@ -71,7 +69,7 @@ class DialogBox extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.only(left: 10),
                       child: Obx(() {
-                        final date = datecontroller.seletedDate.value;
+                        final date = dateController.selectedDate.value;
                         return Text(
                           date == null
                               ? 'No date selected.'

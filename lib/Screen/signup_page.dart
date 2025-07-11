@@ -33,26 +33,32 @@ class SignupPage extends StatelessWidget {
                     TextFormField(
                       controller: email,
                       validator: (value) => ToDoValidator.validateEmail(value),
-                      decoration: const InputDecoration(labelText: "Email",prefixIcon: Icon(Iconsax.direct_right),),
+                      decoration: const InputDecoration(
+                        labelText: "Email",
+                        prefixIcon: Icon(Iconsax.direct_right),
+                      ),
                     ),
                     const SizedBox(height: 25),
                     Obx(
-                        () => TextFormField(
-                          controller: password,
-                          obscureText: hidePassword.value,
-                          validator: (value) =>
-                              ToDoValidator.validatePassword(value),
-                          decoration: InputDecoration(
-                            labelText: "Password",
-                            prefixIcon: const Icon(Iconsax.password_check),
-                            suffixIcon: IconButton(
-                              onPressed: () => hidePassword.value = !hidePassword.value,
-                              icon: Icon(
-                                  hidePassword.value ? Iconsax.eye_slash : Iconsax.eye
-                              ),
+                      () => TextFormField(
+                        controller: password,
+                        obscureText: hidePassword.value,
+                        validator: (value) =>
+                            ToDoValidator.validatePassword(value),
+                        decoration: InputDecoration(
+                          labelText: "Password",
+                          prefixIcon: const Icon(Iconsax.password_check),
+                          suffixIcon: IconButton(
+                            onPressed: () =>
+                                hidePassword.value = !hidePassword.value,
+                            icon: Icon(
+                              hidePassword.value
+                                  ? Iconsax.eye_slash
+                                  : Iconsax.eye,
                             ),
                           ),
                         ),
+                      ),
                     ),
                     const SizedBox(height: 25),
                     SizedBox(
@@ -71,9 +77,30 @@ class SignupPage extends StatelessWidget {
                               Get.to(LoginPage());
                               Get.showSnackbar(successSnackBar());
                             }
-                          } catch (e) {
-                            print(e);
-                            //Get.showSnackbar(errorSnackBar(e));
+                          } on FirebaseAuthException catch (e) {
+                            String errorMessage;
+
+                            switch (e.code) {
+                              case 'user-not-found':
+                                errorMessage = 'No user found for that email.';
+                                break;
+                              case 'wrong-password':
+                                errorMessage = 'Wrong password provided.';
+                                break;
+                              case 'invalid-email':
+                                errorMessage = 'Invalid email format.';
+                                break;
+                              case 'user-disabled':
+                                errorMessage =
+                                    'This user account has been disabled.';
+                                break;
+                              default:
+                                errorMessage =
+                                    e.message ?? 'Authentication failed.';
+                            }
+                            Get.showSnackbar(
+                              errorSnackBar(message: errorMessage),
+                            );
                           }
                           //await SignupController().signUp();
                         },
