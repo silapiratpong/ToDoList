@@ -118,11 +118,14 @@ class ToDoTile extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        formattedDate,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          color: Colors.white70,
+                      Padding(
+                        padding: EdgeInsets.all(10),
+                        child: Text(
+                          formattedDate,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: Colors.white70,
+                          ),
                         ),
                       ),
                       OutlinedButton.icon(

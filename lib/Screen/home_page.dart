@@ -45,11 +45,11 @@ class _HomePageState extends State<HomePage> {
   }
 
   void saveNewTask() {
-    if (_controller.text != "") {
+    if (_controller.text != ""&&_dateController.selectedDate.value != null) {
       uploadListToDb();
       _controller.clear();
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(theSnackBar(context, "error"));
+      ScaffoldMessenger.of(context).showSnackBar(theSnackBar(context, "Error"));
     }
     Navigator.of(context).pop();
   }
